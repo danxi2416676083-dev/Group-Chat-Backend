@@ -1,0 +1,202 @@
+# ============================================
+# 群聊系统后端 - 应用配置文件
+# 技术栈: Spring Boot 3.x + MySQL + Redis + WebSocket
+# JDK版本: 21/24
+# ============================================
+
+# Spring应用配置
+spring:
+  application:
+    # 应用名称
+    name: group-chat-backend
+  
+  # 数据源配置 - MySQL
+  datasource:
+    # 数据库连接URL
+    # useSSL=false: 不使用SSL连接(开发环境)
+    # serverTimezone=Asia/Shanghai: 设置时区为上海
+    # allowPublicKeyRetrieval=true: 允许公钥检索
+    url: jdbc:mysql://localhost:3306/group_chat?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    # 数据库用户名
+    username: root
+    # 数据库密码
+    password: lwy20050827
+    # 数据库驱动类名
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+    # Druid连接池配置
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      # 初始化连接数
+      initial-size: 5
+      # 最小连接池数量
+      min-idle: 5
+      # 最大连接池数量
+      max-active: 20
+      # 获取连接时最大等待时间(毫秒)
+      max-wait: 60000
+      # 检测间隔(毫秒)
+      time-between-eviction-runs-millis: 60000
+      # 连接在池中最小生存时间(毫秒)
+      min-evictable-idle-time-millis: 300000
+      # 连接在池中最大生存时间(毫秒)
+      max-evictable-idle-time-millis: 900000
+      # 验证连接是否有效的SQL
+      validation-query: SELECT 1
+      # 申请连接时执行validationQuery检测
+      test-while-idle: true
+      # 申请连接时执行validationQuery检测
+      test-on-borrow: false
+      # 归还连接时执行validationQuery检测
+      test-on-return: false
+      # 是否缓存preparedStatement
+      pool-prepared-statements: true
+      # 最大preparedStatement缓存数
+      max-pool-prepared-statement-per-connection-size: 20
+      # 监控统计拦截的filters
+      filters: stat,wall,slf4j
+      # 合并SQL监控
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+  
+  # JPA配置
+  jpa:
+    # 数据库方言
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    # 是否显示SQL
+    show-sql: true
+    # Hibernate配置
+    hibernate:
+      # DDL自动策略: update(更新)、create(创建)、create-drop(创建并删除)、validate(验证)
+      ddl-auto: update
+    # 命名策略
+    properties:
+      hibernate:
+        # 物理命名策略: 将驼峰命名转换为下划线命名
+        physical_naming_strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        # 格式化SQL输出
+        format_sql: true
+  
+  # Redis配置
+  data:
+    redis:
+      # Redis服务器地址
+      host: localhost
+      # Redis服务器端口
+      port: 6379
+      # Redis数据库索引(0-15)
+      database: 0
+      # 连接超时时间(毫秒)
+      timeout: 60000
+      # 密码(如果没有密码请留空)
+      password: lwy20050827
+      
+      # Lettuce连接池配置
+      lettuce:
+        pool:
+          # 最大连接数
+          max-active: 8
+          # 最大阻塞等待时间(毫秒)
+          max-wait: -1
+          # 最大空闲连接数
+          max-idle: 8
+          # 最小空闲连接数
+          min-idle: 0
+        # 关闭超时时间
+        shutdown-timeout: 100ms
+  
+  # Jackson配置 - JSON序列化
+  jackson:
+    # 日期格式
+    date-format: yyyy-MM-dd HH:mm:ss
+    # 时区
+    time-zone: GMT+8
+    # 序列化配置
+    serialization:
+      # 格式化输出: 开启后接口返回的JSON会按字段分行展示，便于命令行客户端阅读
+      indent-output: true
+      # 日期转为时间戳
+      write-dates-as-timestamps: false
+    # 反序列化配置
+    deserialization:
+      # 允许未知字段
+      fail-on-unknown-properties: false
+
+# 服务器配置
+server:
+  # 服务端口
+  port: 8080
+  # 上下文路径
+  servlet:
+    context-path: /api
+  # 编码配置
+  tomcat:
+    uri-encoding: UTF-8
+
+# 日志配置
+logging:
+  level:
+    # 根日志级别
+    root: INFO
+    # Spring Web日志级别
+    org.springframework.web: DEBUG
+    # Hibernate SQL日志级别
+    org.hibernate.SQL: DEBUG
+    # 应用包日志级别
+    com.groupchat: DEBUG
+  # 日志格式
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 自定义配置
+app:
+  # JWT配置
+  jwt:
+    # JWT密钥(生产环境请使用复杂密钥)
+    secret: your-secret-key-here-must-be-at-least-32-characters-long
+    # Token有效期(毫秒): 2小时
+    expiration: 7200000
+    # 刷新Token有效期(毫秒): 7天
+    refresh-expiration: 604800000
+    # Token请求头名称
+    header: Authorization
+    # Token前缀
+    prefix: Bearer
+  
+  # WebSocket配置
+  websocket:
+    # 端点路径
+    endpoint: /ws/chat
+    # 允许跨域的源
+    allowed-origins: "*"
+    # 心跳间隔(毫秒)
+    heartbeat-interval: 30000
+  
+  # 文件上传配置
+  file:
+    # 上传路径
+    upload-path: ./uploads
+    # 最大文件大小(MB)
+    max-size: 10
+    # 允许的文件类型
+    allowed-types: jpg,jpeg,png,gif,mp4,mp3,wav
+  
+  # 消息配置
+  message:
+    # 消息历史保留天数
+    history-days: 30
+    # 单次拉取消息数量限制
+    page-size: 50
+    # 是否开启消息持久化
+    persistence: true
+
+# Actuator监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        # 暴露所有端点
+        include: "*"
+  endpoint:
+    health:
+      # 显示详细健康信息
+      show-details: always
